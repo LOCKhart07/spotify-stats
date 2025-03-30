@@ -56,8 +56,8 @@ jobs:
           username: ${{ secrets.ORACLE_USERNAME }}
           key: ${{ secrets.ORACLE_SSH_KEY }}
           script: |
-            sudo mkdir -p /tmp/spotify-stats-cache
-            sudo curl -L https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.yaml -o /tmp/spotify-stats-cache/docker-compose.yaml
-            cd /tmp/spotify-stats-cache
+            sudo mkdir -p /tmp/${{ github.repository }}
+            sudo curl -L https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.yaml -o /tmp/${{ github.repository }}/docker-compose.yaml
+            cd /tmp/${{ github.repository }}
             sudo LASTFM_USERNAME=${{ secrets.LASTFM_USERNAME}} LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY}} REDIS_HOST=${{ secrets.REDIS_HOST}} REDIS_PORT=${{ secrets.REDIS_PORT}} CACHE_TTL=${{ secrets.CACHE_TTL}} BEARER_TOKEN=${{ secrets.BEARER_TOKEN}} docker compose up -d
-            sudo rm -rf /tmp/spotify-stats-cache
+            sudo rm -rf /tmp/${{ github.repository }}
