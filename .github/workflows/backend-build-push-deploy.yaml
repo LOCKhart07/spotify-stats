@@ -61,5 +61,5 @@ jobs:
             cd /tmp/spotify-stats
             sudo docker compose down
             sudo docker compose pull
-            sudo docker compose up -d
+            sudo SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID}} SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET}} SPOTIFY_REFRESH_TOKEN=${{ secrets.SPOTIFY_REFRESH_TOKEN}} REDIS_HOST=${{ secrets.REDIS_HOST}} REDIS_PORT=${{ secrets.REDIS_PORT}} CACHE_TTL=${{ secrets.CACHE_TTL}} docker compose up -d
             sudo rm -rf /tmp/spotify-stats
