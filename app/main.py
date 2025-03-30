@@ -1,6 +1,6 @@
 import redis
 import os
-from fastapi import FastAPI, Query, APIRouter
+from fastapi import FastAPI, Query, APIRouter, HTTPException, Header
 from typing import List, Callable
 from functools import wraps
 
@@ -24,6 +24,8 @@ load_dotenv()
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 CACHE_TTL = int(os.getenv("CACHE_TTL", 86400))  # 1 day in seconds
+
+BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 # Redis Setup
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
@@ -56,11 +58,20 @@ def redis_cache(func: Callable):
     return wrapper
 
 
+def verify_authorization(authorization: str):
+    if authorization != f"Bearer {BEARER_TOKEN}":
+        raise HTTPException(status_code=403, detail="Unauthorized")
+
+
 @router.get("/top-tracks", response_model=List[Track])
 @redis_cache
 def top_tracks(
-    limit: int = Query(10), page: int = Query(1), period: str = Query("overall")
+    limit: int = Query(10),
+    page: int = Query(1),
+    period: str = Query("overall"),
+    authorization: str = Header(None),
 ):
+    verify_authorization(authorization)
     return fetch_lastfm_top_tracks(limit=limit, period=period, page=page)
 
 
@@ -69,8 +80,12 @@ def top_tracks(
 )  # Changed endpoint and response model
 @redis_cache
 def top_artists(  # Renamed function
-    limit: int = Query(10), page: int = Query(1), period: str = Query("overall")
+    limit: int = Query(10),
+    page: int = Query(1),
+    period: str = Query("overall"),
+    authorization: str = Header(None),
 ):
+    verify_authorization(authorization)
     offset = (page - 1) * limit  # Calculate the offset for pagination
     return {
         "artists": fetch_lastfm_top_artists(limit=limit, period=period, page=page)
@@ -80,9 +95,13 @@ def top_artists(  # Renamed function
 @router.get("/top-tags", response_model=List[Tag])
 @redis_cache
 def top_tags(
-    limit: int = Query(10), page: int = Query(1), period: str = Query("overall")
+    limit: int = Query(10),
+    page: int = Query(1),
+    period: str = Query("overall"),
+    authorization: str = Header(None),
 ):
-    return fetch_lastfm_top_tags(limit=limit, period=period)
+    verify_authorization(authorization)
+    return fetch_lastfm_top_tags(limit=limit, period=period, page=page)
 
 
 # Keep the ping endpoint outside the router

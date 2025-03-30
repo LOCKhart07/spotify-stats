@@ -1,7 +1,7 @@
 services:
-  spotify-stats-service:
-    container_name: spotify-stats-service
-    image: ghcr.io/lockhart07/spotify-stats:latest
+  spotify-stats-cache-service:
+    container_name: spotify-stats-cache-service
+    image: ghcr.io/lockhart07/spotify-stats-cache:latest
     pull_policy: always
     tty: true
     stdin_open: true
@@ -19,6 +19,7 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - CACHE_TTL=${CACHE_TTL}
+      - BEARER_TOKEN=${BEARER_TOKEN}
     networks:
       - backend
 
