@@ -47,7 +47,6 @@ def get_spotify_access_token():
         "client_secret": SPOTIFY_CLIENT_SECRET,
     }
     response = requests.post(url, data=data)
-    print(response.json())
     return response.json().get("access_token")
 
 
@@ -57,7 +56,6 @@ def fetch_spotify_top_tracks():
     url = "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10"
     response = requests.get(url, headers=headers)
     data = response.json()
-    print(data)
     tracks = [
         {
             "name": t["name"],
@@ -111,7 +109,6 @@ def top_genres():
 
 @app.get("/ping", response_model=PongResponse)
 def ping():
-    print("env", os.getenv("SPOTIFY_CLIENT_ID"))
     return PongResponse(message="pong")
 
 
