@@ -1,8 +1,8 @@
 import redis
 import os
-from fastapi import FastAPI
-from typing import List
-import os
+from fastapi import FastAPI, Query
+from typing import List, Callable
+from functools import wraps
 
 from dotenv import load_dotenv
 from service import (
@@ -27,31 +27,34 @@ redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=Tr
 
 # FastAPI App
 app = FastAPI()
-from fastapi import Query
+
+
+def redis_cache(func: Callable):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        limit = kwargs.get("limit", 10)
+        cache_key = f"{func.__name__}_{limit}"
+        cached_data = redis_client.get(cache_key)
+        if cached_data:
+            return eval(cached_data)
+
+        result = func(*args, **kwargs)
+        redis_client.setex(cache_key, CACHE_TTL, str(result))
+        return result
+
+    return wrapper
 
 
 @app.get("/top-tracks", response_model=List[Track])
+@redis_cache
 def top_tracks(limit: int = Query(10)):
-    cache_key = f"top_tracks_{limit}"
-    cached_data = redis_client.get(cache_key)
-    if cached_data:
-        return eval(cached_data)
-
-    tracks = fetch_lastfm_top_tracks(limit=limit)
-    redis_client.setex(cache_key, CACHE_TTL, str(tracks))
-    return tracks
+    return fetch_lastfm_top_tracks(limit=limit)
 
 
 @app.get("/top-genres", response_model=GenreResponse)
+@redis_cache
 def top_genres(limit: int = Query(10)):
-    cache_key = f"top_genres_{limit}"
-    cached_data = redis_client.get(cache_key)
-    if cached_data:
-        return {"genres": eval(cached_data)}
-
-    genres = fetch_lastfm_top_genres(limit=limit)
-    redis_client.setex(cache_key, CACHE_TTL, str(genres))
-    return {"genres": genres}
+    return {"genres": fetch_lastfm_top_genres(limit=limit)}
 
 
 @app.get("/ping", response_model=PongResponse)
