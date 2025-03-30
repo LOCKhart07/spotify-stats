@@ -8,8 +8,14 @@ class Track(BaseModel):
     url: str
 
 
-class GenreResponse(BaseModel):
-    genres: List[str]
+class Artist(BaseModel):
+    name: str
+    url: str
+    image: str  # Optional image URL
+
+
+class Tag(BaseModel):
+    name: str
 
 
 class PongResponse(BaseModel):

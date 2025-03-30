@@ -7,13 +7,15 @@ from functools import wraps
 from dotenv import load_dotenv
 from .service import (
     fetch_lastfm_top_tracks,
-    fetch_lastfm_top_genres,
-)  # Importing functions from the new service module
+    fetch_lastfm_top_artists,
+    fetch_lastfm_top_tags,
+)
 from .models import (
     Track,
-    GenreResponse,
+    Artist,
+    Tag,
     PongResponse,
-)  # Importing models from the new models module
+)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -59,19 +61,28 @@ def redis_cache(func: Callable):
 def top_tracks(
     limit: int = Query(10), page: int = Query(1), period: str = Query("overall")
 ):
-    offset = (page - 1) * limit  # Calculate the offset for pagination
-    return fetch_lastfm_top_tracks(limit=limit, period=period, offset=offset)
+    return fetch_lastfm_top_tracks(limit=limit, period=period, page=page)
 
 
-@router.get("/top-genres", response_model=GenreResponse)
+@router.get(
+    "/top-artists", response_model=List[Artist]
+)  # Changed endpoint and response model
 @redis_cache
-def top_genres(
+def top_artists(  # Renamed function
     limit: int = Query(10), page: int = Query(1), period: str = Query("overall")
 ):
     offset = (page - 1) * limit  # Calculate the offset for pagination
     return {
-        "genres": fetch_lastfm_top_genres(limit=limit, period=period, offset=offset)
-    }
+        "artists": fetch_lastfm_top_artists(limit=limit, period=period, page=page)
+    }  # Changed to fetch artists
+
+
+@router.get("/top-tags", response_model=List[Tag])
+@redis_cache
+def top_tags(
+    limit: int = Query(10), page: int = Query(1), period: str = Query("overall")
+):
+    return fetch_lastfm_top_tags(limit=limit, period=period)
 
 
 # Keep the ping endpoint outside the router
