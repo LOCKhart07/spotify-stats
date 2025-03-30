@@ -5,11 +5,11 @@ from typing import List, Callable
 from functools import wraps
 
 from dotenv import load_dotenv
-from service import (
+from .service import (
     fetch_lastfm_top_tracks,
     fetch_lastfm_top_genres,
 )  # Importing functions from the new service module
-from models import (
+from .models import (
     Track,
     GenreResponse,
     PongResponse,
