@@ -14,7 +14,7 @@ HEADERS = {
 }
 
 
-def fetch_lastfm_data(method: str, limit: int, period: str = "overall"):
+def fetch_lastfm_data(method: str, limit: int, period: str = "overall", page: int = 1):
     params = {
         "method": method,
         "user": LASTFM_USERNAME,
@@ -22,13 +22,14 @@ def fetch_lastfm_data(method: str, limit: int, period: str = "overall"):
         "format": "json",
         "limit": limit,
         "period": period,
+        "page": page,
     }
     response = requests.get(BASE_URL, params=params, headers=HEADERS)
     return response.json()
 
 
-def fetch_lastfm_top_tracks(limit: int, period: str = "overall"):
-    data = fetch_lastfm_data("user.gettoptracks", limit, period)
+def fetch_lastfm_top_tracks(limit: int, period: str = "overall", page: int = 1):
+    data = fetch_lastfm_data("user.gettoptracks", limit, period, page)
     tracks = [
         {
             "name": t["name"],
@@ -40,8 +41,8 @@ def fetch_lastfm_top_tracks(limit: int, period: str = "overall"):
     return tracks
 
 
-def fetch_lastfm_top_artists(limit: int, period: str = "overall"):
-    data = fetch_lastfm_data("user.gettopartists", limit, period)
+def fetch_lastfm_top_artists(limit: int, period: str = "overall", page: int = 1):
+    data = fetch_lastfm_data("user.gettopartists", limit, period, page)
     artists = [
         {
             "name": artist["name"],
@@ -53,7 +54,7 @@ def fetch_lastfm_top_artists(limit: int, period: str = "overall"):
     return artists
 
 
-def fetch_lastfm_top_tags(limit: int, period: str = "overall"):
-    data = fetch_lastfm_data("user.gettoptags", limit, period)
+def fetch_lastfm_top_tags(limit: int, period: str = "overall", page: int = 1):
+    data = fetch_lastfm_data("user.gettoptags", limit, period, page)
     tags = [tag["name"] for tag in data.get("toptags", {}).get("tag", [])]
     return tags
