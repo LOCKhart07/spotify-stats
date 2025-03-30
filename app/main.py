@@ -26,13 +26,11 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 CACHE_TTL = int(os.getenv("CACHE_TTL", 86400))  # 1 day in seconds
 
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
-# Redis Setup
+
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
-# FastAPI App
 app = FastAPI()
 
-# Create a router
 router = APIRouter(prefix="/spotify-stats/api")
 
 
@@ -58,13 +56,20 @@ def redis_cache(func: Callable):
     return wrapper
 
 
-def verify_authorization(authorization: str):
-    print(authorization, "|||||||||||", BEARER_TOKEN)
-    if authorization != f"Bearer {BEARER_TOKEN}":
-        raise HTTPException(status_code=403, detail="Unauthorized")
+def verify_authorization(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        authorization = kwargs.get("authorization")
+        print(authorization, "|||||||||||", BEARER_TOKEN)
+        if authorization != f"Bearer {BEARER_TOKEN}":
+            raise HTTPException(status_code=403, detail="Unauthorized")
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 @router.get("/top-tracks", response_model=List[Track])
+@verify_authorization
 @redis_cache
 def top_tracks(
     limit: int = Query(10),
@@ -72,28 +77,23 @@ def top_tracks(
     period: str = Query("overall"),
     authorization: str = Header(None),
 ):
-    verify_authorization(authorization)
     return fetch_lastfm_top_tracks(limit=limit, period=period, page=page)
 
 
-@router.get(
-    "/top-artists", response_model=List[Artist]
-)  # Changed endpoint and response model
+@router.get("/top-artists", response_model=List[Artist])
+@verify_authorization
 @redis_cache
-def top_artists(  # Renamed function
+def top_artists(
     limit: int = Query(10),
     page: int = Query(1),
     period: str = Query("overall"),
     authorization: str = Header(None),
 ):
-    verify_authorization(authorization)
-    offset = (page - 1) * limit  # Calculate the offset for pagination
-    return {
-        "artists": fetch_lastfm_top_artists(limit=limit, period=period, page=page)
-    }  # Changed to fetch artists
+    return {"artists": fetch_lastfm_top_artists(limit=limit, period=period, page=page)}
 
 
 @router.get("/top-tags", response_model=List[Tag])
+@verify_authorization
 @redis_cache
 def top_tags(
     limit: int = Query(10),
@@ -101,17 +101,14 @@ def top_tags(
     period: str = Query("overall"),
     authorization: str = Header(None),
 ):
-    verify_authorization(authorization)
     return fetch_lastfm_top_tags(limit=limit, period=period, page=page)
 
 
-# Keep the ping endpoint outside the router
 @app.get("/ping", response_model=PongResponse)
 def ping():
     return PongResponse(message="pong")
 
 
-# Include the router in the main app
 app.include_router(router)
 
 if __name__ == "__main__":
