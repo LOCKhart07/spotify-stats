@@ -1,6 +1,6 @@
 import redis
 import os
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, APIRouter
 from typing import List, Callable
 from functools import wraps
 
@@ -28,6 +28,9 @@ redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=Tr
 # FastAPI App
 app = FastAPI()
 
+# Create a router
+router = APIRouter(prefix="/spotify-stats/api")
+
 
 def redis_cache(func: Callable):
     @wraps(func)
@@ -45,22 +48,26 @@ def redis_cache(func: Callable):
     return wrapper
 
 
-@app.get("/top-tracks", response_model=List[Track])
+@router.get("/top-tracks", response_model=List[Track])
 @redis_cache
 def top_tracks(limit: int = Query(10)):
     return fetch_lastfm_top_tracks(limit=limit)
 
 
-@app.get("/top-genres", response_model=GenreResponse)
+@router.get("/top-genres", response_model=GenreResponse)
 @redis_cache
 def top_genres(limit: int = Query(10)):
     return {"genres": fetch_lastfm_top_genres(limit=limit)}
 
 
+# Keep the ping endpoint outside the router
 @app.get("/ping", response_model=PongResponse)
 def ping():
     return PongResponse(message="pong")
 
+
+# Include the router in the main app
+app.include_router(router)
 
 if __name__ == "__main__":
     import uvicorn
