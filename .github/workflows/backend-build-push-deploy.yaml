@@ -1,4 +1,4 @@
-name: backend - Docker Image CI/CD
+name: Docker Image CI/CD
 
 on:
   push:
@@ -42,7 +42,6 @@ jobs:
         uses: docker/build-push-action@v6.9.0
         with:
           platforms: linux/arm64/v8
-          context: "{{defaultContext}}:backend"
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -52,7 +51,7 @@ jobs:
     steps:
       - name: Download docker-compose.yaml from GitHub
         run: |
-          sudo curl -L https://raw.githubusercontent.com/${{ github.repository }}/main/backend/docker-compose.yaml -o /tmp/docker-compose.yaml
+          sudo curl -L https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.yaml -o /tmp/docker-compose.yaml
 
       - name: Restart Docker Compose
         uses: appleboy/ssh-action@master
