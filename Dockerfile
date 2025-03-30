@@ -13,7 +13,7 @@ WORKDIR /app
 COPY --chown=spotify-stats:spotify-stats requirements.txt main.py ./
 
 # Install the dependencies
-RUN pip install -r requirements.txt --no-cache-dir --user=false
+RUN pip install -r requirements.txt --no-cache-dir
 
 # Expose the port
 EXPOSE 9000
