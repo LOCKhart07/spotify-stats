@@ -89,7 +89,7 @@ def top_artists(
     period: str = Query("overall"),
     authorization: str = Header(None),
 ):
-    return {"artists": fetch_lastfm_top_artists(limit=limit, period=period, page=page)}
+    return fetch_lastfm_top_artists(limit=limit, period=period, page=page)
 
 
 @router.get("/top-tags", response_model=List[Tag])
