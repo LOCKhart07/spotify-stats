@@ -13,6 +13,13 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    environment:
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - SPOTIFY_REFRESH_TOKEN=${SPOTIFY_REFRESH_TOKEN}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - CACHE_TTL=${CACHE_TTL}
     networks:
       - backend
 
