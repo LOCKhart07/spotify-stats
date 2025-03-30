@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   spotify-stats-service:
     container_name: spotify-stats-service
@@ -8,8 +10,27 @@ services:
     ports:
       - "9000:9000"
     healthcheck:
-      test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.settimeout(5); s.connect(('localhost', 8000)); s.close()"]
+      test: ["CMD", "python3", "-c", "import requests; r=requests.get('http://localhost:9000/ping'); r.raise_for_status()"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 30s
+    networks:
+      - backend
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

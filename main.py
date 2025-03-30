@@ -105,6 +105,11 @@ def top_genres():
     return {"genres": genres}
 
 
+@app.get("/ping", response_model=str)
+def ping():
+    return {"message": "pong"}
+
+
 if __name__ == "__main__":
     import uvicorn
 
