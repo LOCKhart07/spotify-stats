@@ -16,7 +16,7 @@ COPY --chown=spotify-stats:spotify-stats requirements.txt main.py ./
 RUN pip install -r requirements.txt
 
 # Expose the port
-EXPOSE 8000
+EXPOSE 9000
 
 # Set the maintainer
 LABEL maintainer="Jenslee Dsouza <dsouzajenslee@gmail.com>"
