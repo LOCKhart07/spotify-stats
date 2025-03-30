@@ -59,7 +59,5 @@ jobs:
             sudo mkdir -p /tmp/spotify-stats
             sudo curl -L https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.yaml -o /tmp/spotify-stats/docker-compose.yaml
             cd /tmp/spotify-stats
-            sudo docker compose down
-            sudo docker compose pull
             sudo LASTFM_USERNAME=${{ secrets.LASTFM_USERNAME}} LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY}} REDIS_HOST=${{ secrets.REDIS_HOST}} REDIS_PORT=${{ secrets.REDIS_PORT}} CACHE_TTL=${{ secrets.CACHE_TTL}} docker compose up -d
             sudo rm -rf /tmp/spotify-stats
