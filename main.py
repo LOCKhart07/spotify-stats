@@ -1,11 +1,19 @@
 import redis
-import requests
+import os
 from fastapi import FastAPI
-from pydantic import BaseModel
 from typing import List
 import os
 
 from dotenv import load_dotenv
+from service import (
+    fetch_lastfm_top_tracks,
+    fetch_lastfm_top_genres,
+)  # Importing functions from the new service module
+from models import (
+    Track,
+    GenreResponse,
+    PongResponse,
+)  # Importing models from the new models module
 
 # Load environment variables from .env file
 load_dotenv()
@@ -14,95 +22,34 @@ load_dotenv()
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
 CACHE_TTL = int(os.getenv("CACHE_TTL", 86400))  # 1 day in seconds
-SPOTIFY_REFRESH_TOKEN = os.getenv("SPOTIFY_REFRESH_TOKEN")
-SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
-SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 # Redis Setup
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 # FastAPI App
 app = FastAPI()
-
-
-class Track(BaseModel):
-    name: str
-    artist: str
-    url: str
-
-
-class GenreResponse(BaseModel):
-    genres: List[str]
-
-
-class PongResponse(BaseModel):
-    message: str
-
-
-def get_spotify_access_token():
-    url = "https://accounts.spotify.com/api/token"
-    data = {
-        "grant_type": "refresh_token",
-        "refresh_token": SPOTIFY_REFRESH_TOKEN,
-        "client_id": SPOTIFY_CLIENT_ID,
-        "client_secret": SPOTIFY_CLIENT_SECRET,
-    }
-    response = requests.post(url, data=data)
-    return response.json().get("access_token")
-
-
-def fetch_spotify_top_tracks():
-    access_token = get_spotify_access_token()
-    headers = {"Authorization": f"Bearer {access_token}"}
-    url = "https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10"
-    response = requests.get(url, headers=headers)
-    data = response.json()
-    tracks = [
-        {
-            "name": t["name"],
-            "artist": t["artists"][0]["name"],
-            "url": t["external_urls"]["spotify"],
-        }
-        for t in data.get("items", [])
-    ]
-    return tracks
-
-
-def fetch_spotify_top_genres():
-    access_token = get_spotify_access_token()
-    headers = {"Authorization": f"Bearer {access_token}"}
-    url = "https://api.spotify.com/v1/me/top/artists?time_range=short_term&limit=10"
-    response = requests.get(url, headers=headers)
-    data = response.json()
-    genres = list(
-        set(
-            genre
-            for artist in data.get("items", [])
-            for genre in artist.get("genres", [])
-        )
-    )
-    return genres
+from fastapi import Query
 
 
 @app.get("/top-tracks", response_model=List[Track])
-def top_tracks():
-    cache_key = "top_tracks"
+def top_tracks(limit: int = Query(10)):
+    cache_key = f"top_tracks_{limit}"
     cached_data = redis_client.get(cache_key)
     if cached_data:
         return eval(cached_data)
 
-    tracks = fetch_spotify_top_tracks()
+    tracks = fetch_lastfm_top_tracks(limit=limit)
     redis_client.setex(cache_key, CACHE_TTL, str(tracks))
     return tracks
 
 
 @app.get("/top-genres", response_model=GenreResponse)
-def top_genres():
-    cache_key = "top_genres"
+def top_genres(limit: int = Query(10)):
+    cache_key = f"top_genres_{limit}"
     cached_data = redis_client.get(cache_key)
     if cached_data:
         return {"genres": eval(cached_data)}
 
-    genres = fetch_spotify_top_genres()
+    genres = fetch_lastfm_top_genres(limit=limit)
     redis_client.setex(cache_key, CACHE_TTL, str(genres))
     return {"genres": genres}
 
