@@ -1,20 +1,24 @@
 # Use an official Python runtime as a parent image
 FROM python:3.11-slim
 
-
-# Set the user to spotify-stats
+# Create a non-root user
 RUN useradd -m spotify-stats
+
+# Set the working directory to /code and change ownership
+WORKDIR /code
+RUN chown -R spotify-stats:spotify-stats /code
+
+# Switch to the non-root user
 USER spotify-stats
 
-# Set the working directory to /app
-WORKDIR /app
+# Copy and install dependencies
+COPY --chown=spotify-stats:spotify-stats ./requirements.txt /code/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt --user  # Install in user directory
 
-# Copy the requirements file
-COPY --chown=spotify-stats:spotify-stats requirements.txt main.py ./
+# Copy application code
+COPY --chown=spotify-stats:spotify-stats ./app /code/app
 
-# Install the dependencies
-RUN pip install -r requirements.txt --no-cache-dir
-
+# Ensure user-installed packages are in PATH
 ENV PATH="/home/spotify-stats/.local/bin:${PATH}"
 
 # Expose the port
@@ -23,7 +27,5 @@ EXPOSE 9000
 # Set the maintainer
 LABEL maintainer="Jenslee Dsouza <dsouzajenslee@gmail.com>"
 
-# Start of Selection
-# Run Uvicorn with workers and set the root path
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000", "--root-path", "/spotify-stats/api"]
-# End of Selection
+# Start Uvicorn with the root path
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "9000", "--proxy-headers", "--root-path", "/spotify-stats/api"]
