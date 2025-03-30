@@ -34,6 +34,10 @@ class GenreResponse(BaseModel):
     genres: List[str]
 
 
+class PongResponse(BaseModel):
+    message: str
+
+
 def get_spotify_access_token():
     url = "https://accounts.spotify.com/api/token"
     data = {
@@ -105,14 +109,13 @@ def top_genres():
     return {"genres": genres}
 
 
-@app.get("/ping", response_model=str)
+@app.get("/ping", response_model=PongResponse)
 def ping():
-    return {"message": "pong"}
+    print("env", os.getenv("SPOTIFY_CLIENT_ID"))
+    return PongResponse(message="pong")
 
 
 if __name__ == "__main__":
     import uvicorn
-
-    print("env", os.getenv("SPOTIFY_CLIENT_ID"))
 
     uvicorn.run(app, host="0.0.0.0", port=9000)

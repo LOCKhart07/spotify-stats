@@ -25,4 +25,4 @@ LABEL maintainer="Jenslee Dsouza <dsouzajenslee@gmail.com>"
 
 
 # Run Uvicorn with workers
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000", "--workers", "4"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]
