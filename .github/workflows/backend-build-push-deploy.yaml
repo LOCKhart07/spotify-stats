@@ -51,7 +51,6 @@ jobs:
     steps:
       - name: Download docker-compose.yaml from GitHub
         run: |
-          sudo curl -L https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.yaml -o /tmp/docker-compose.yaml
 
       - name: Restart Docker Compose
         uses: appleboy/ssh-action@master
@@ -60,7 +59,10 @@ jobs:
           username: ${{ secrets.ORACLE_USERNAME }}
           key: ${{ secrets.ORACLE_SSH_KEY }}
           script: |
-            cd /tmp
+            sudo mkdir -p /tmp/spotify-stats
+            sudo curl -L https://raw.githubusercontent.com/${{ github.repository }}/main/docker-compose.yaml -o /tmp/spotify-stats/docker-compose.yaml
+            cd /tmp/spotify-stats
             sudo docker compose down
             sudo docker compose pull
             sudo docker compose up -d
+            sudo rm -rf /tmp/spotify-stats
