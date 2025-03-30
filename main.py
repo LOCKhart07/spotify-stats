@@ -108,4 +108,6 @@ def top_genres():
 if __name__ == "__main__":
     import uvicorn
 
+    print("env", os.getenv("SPOTIFY_CLIENT_ID"))
+
     uvicorn.run(app, host="0.0.0.0", port=9000)
