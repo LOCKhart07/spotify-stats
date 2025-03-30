@@ -59,6 +59,7 @@ def redis_cache(func: Callable):
 
 
 def verify_authorization(authorization: str):
+    print(authorization, "|||||||||||", BEARER_TOKEN)
     if authorization != f"Bearer {BEARER_TOKEN}":
         raise HTTPException(status_code=403, detail="Unauthorized")
 
