@@ -49,10 +49,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download docker-compose.yaml from GitHub
-        run: |
-
-      - name: Restart Docker Compose
+      - name: Deploy to Oracle
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.ORACLE_HOST }}
