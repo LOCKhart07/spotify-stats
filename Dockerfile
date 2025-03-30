@@ -23,6 +23,7 @@ EXPOSE 9000
 # Set the maintainer
 LABEL maintainer="Jenslee Dsouza <dsouzajenslee@gmail.com>"
 
-
-# Run Uvicorn with workers
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]
+# Start of Selection
+# Run Uvicorn with workers and set the root path
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000", "--root-path", "/spotify-stats/api"]
+# End of Selection
