@@ -6,7 +6,7 @@ services:
     tty: true
     stdin_open: true
     ports:
-      - "8000:8000"
+      - "9000:9000"
     healthcheck:
       test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.settimeout(5); s.connect(('localhost', 8000)); s.close()"]
       interval: 30s
