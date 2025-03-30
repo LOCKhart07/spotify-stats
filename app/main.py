@@ -60,7 +60,6 @@ def verify_authorization(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         authorization = kwargs.get("authorization")
-        print(authorization, "|||||||||||", BEARER_TOKEN)
         if authorization != f"Bearer {BEARER_TOKEN}":
             raise HTTPException(status_code=403, detail="Unauthorized")
         return func(*args, **kwargs)
