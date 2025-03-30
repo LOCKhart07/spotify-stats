@@ -15,6 +15,8 @@ COPY --chown=spotify-stats:spotify-stats requirements.txt main.py ./
 # Install the dependencies
 RUN pip install -r requirements.txt --no-cache-dir
 
+ENV PATH="/home/spotify-stats/.local/bin:${PATH}"
+
 # Expose the port
 EXPOSE 9000
 
