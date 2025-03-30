@@ -1,7 +1,6 @@
 import redis
 import requests
-import time
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 import os
