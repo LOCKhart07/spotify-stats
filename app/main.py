@@ -35,8 +35,14 @@ router = APIRouter(prefix="/spotify-stats/api")
 def redis_cache(func: Callable):
     @wraps(func)
     def wrapper(*args, **kwargs):
+        # Get parameters for cache key
         limit = kwargs.get("limit", 10)
-        cache_key = f"{func.__name__}_{limit}"
+        page = kwargs.get("page", 1)
+        period = kwargs.get("period", "overall")
+
+        # Create a unique cache key based on function name and parameters
+        cache_key = f"{func.__name__}_{limit}_{page}_{period}"
+
         cached_data = redis_client.get(cache_key)
         if cached_data:
             return eval(cached_data)
@@ -50,14 +56,22 @@ def redis_cache(func: Callable):
 
 @router.get("/top-tracks", response_model=List[Track])
 @redis_cache
-def top_tracks(limit: int = Query(10)):
-    return fetch_lastfm_top_tracks(limit=limit)
+def top_tracks(
+    limit: int = Query(10), page: int = Query(1), period: str = Query("overall")
+):
+    offset = (page - 1) * limit  # Calculate the offset for pagination
+    return fetch_lastfm_top_tracks(limit=limit, period=period, offset=offset)
 
 
 @router.get("/top-genres", response_model=GenreResponse)
 @redis_cache
-def top_genres(limit: int = Query(10)):
-    return {"genres": fetch_lastfm_top_genres(limit=limit)}
+def top_genres(
+    limit: int = Query(10), page: int = Query(1), period: str = Query("overall")
+):
+    offset = (page - 1) * limit  # Calculate the offset for pagination
+    return {
+        "genres": fetch_lastfm_top_genres(limit=limit, period=period, offset=offset)
+    }
 
 
 # Keep the ping endpoint outside the router

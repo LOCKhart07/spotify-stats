@@ -9,7 +9,7 @@ LASTFM_API_KEY = os.getenv("LASTFM_API_KEY")
 LASTFM_USERNAME = os.getenv("LASTFM_USERNAME")
 
 
-def fetch_lastfm_top_tracks(limit: int):
+def fetch_lastfm_top_tracks(limit: int, period: str = "overall"):
     url = "http://ws.audioscrobbler.com/2.0/"
     params = {
         "method": "user.gettoptracks",
@@ -17,6 +17,7 @@ def fetch_lastfm_top_tracks(limit: int):
         "api_key": LASTFM_API_KEY,
         "format": "json",
         "limit": limit,  # Use the provided limit
+        "period": period,  # Include the period parameter
     }
     response = requests.get(url, params=params)
     data = response.json()
@@ -31,7 +32,7 @@ def fetch_lastfm_top_tracks(limit: int):
     return tracks
 
 
-def fetch_lastfm_top_genres(limit: int):
+def fetch_lastfm_top_genres(limit: int, period: str = "overall"):
     url = "http://ws.audioscrobbler.com/2.0/"
     params = {
         "method": "user.gettopartists",
@@ -39,6 +40,7 @@ def fetch_lastfm_top_genres(limit: int):
         "api_key": LASTFM_API_KEY,
         "format": "json",
         "limit": limit,  # Use the provided limit
+        "period": period,  # Include the period parameter
     }
     response = requests.get(url, params=params)
     data = response.json()
