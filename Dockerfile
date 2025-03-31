@@ -2,24 +2,24 @@
 FROM python:3.11-slim
 
 # Create a non-root user
-RUN useradd -m spotify-stats-cache
+RUN useradd -m spotify-stats-user
 
 # Set the working directory to /code and change ownership
 WORKDIR /code
-RUN chown -R spotify-stats-cache:spotify-stats-cache /code
+RUN chown -R spotify-stats-user:spotify-stats-user /code
 
 # Switch to the non-root user
-USER spotify-stats-cache
+USER spotify-stats-user
 
 # Copy and install dependencies
-COPY --chown=spotify-stats-cache:spotify-stats-cache ./requirements.txt /code/requirements.txt
+COPY --chown=spotify-stats-user:spotify-stats-user ./requirements.txt /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt --user --no-warn-script-location # Install in user directory
 
 # Copy application code
-COPY --chown=spotify-stats-cache:spotify-stats-cache ./app /code/app
+COPY --chown=spotify-stats-user:spotify-stats-user ./app /code/app
 
 # Ensure user-installed packages are in PATH
-ENV PATH="/home/spotify-stats-cache/.local/bin:${PATH}"
+ENV PATH="/home/spotify-stats-user/.local/bin:${PATH}"
 
 # Expose the port
 EXPOSE 9000
