@@ -38,7 +38,11 @@ app = FastAPI(title="Spotify Stats API")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://portfolio.lockhart.in", "http://localhost:3000"],
+    allow_origins=[
+        "https://portfolio.lockhart.in",
+        "https://portfolio-jenslee.netlify.app/",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -47,7 +51,11 @@ app.add_middleware(
 # Add trusted host middleware
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["https://portfolio.lockhart.in", "http://localhost:3000"],
+    allowed_hosts=[
+        "https://portfolio.lockhart.in",
+        "https://portfolio-jenslee.netlify.app/",
+        "http://localhost:3000",
+    ],
 )
 
 router = APIRouter(prefix="/spotify-stats/api")
