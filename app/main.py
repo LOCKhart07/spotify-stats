@@ -7,14 +7,12 @@ from functools import wraps
 
 from dotenv import load_dotenv
 from .service import (
-    fetch_lastfm_top_tracks,
-    fetch_lastfm_top_artists,
-    fetch_lastfm_top_tags,
+    fetch_spotify_top_artists,
+    fetch_spotify_top_tracks,
 )
 from .models import (
     Track,
     Artist,
-    Tag,
     PongResponse,
 )
 
@@ -78,39 +76,27 @@ def verify_authorization(func):
 
 
 @router.get("/top-tracks", response_model=List[Track])
-@verify_authorization
-@redis_cache
+# @verify_authorization
+# @redis_cache
 def top_tracks(
     limit: int = Query(10),
     page: int = Query(1),
-    period: str = Query("overall"),
+    time_range: str = Query("short_term"),
     authorization: str = Header(None),
 ):
-    return fetch_lastfm_top_tracks(limit=limit, period=period, page=page)
+    return fetch_spotify_top_tracks(limit=limit, time_range=time_range, page=page)
 
 
 @router.get("/top-artists", response_model=List[Artist])
-@verify_authorization
-@redis_cache
-def top_artists(
+# @verify_authorization
+# @redis_cache
+def top_genres(
     limit: int = Query(10),
     page: int = Query(1),
-    period: str = Query("overall"),
+    time_range: str = Query("short_term"),
     authorization: str = Header(None),
 ):
-    return fetch_lastfm_top_artists(limit=limit, period=period, page=page)
-
-
-@router.get("/top-tags", response_model=List[Tag])
-@verify_authorization
-@redis_cache
-def top_tags(
-    limit: int = Query(10),
-    page: int = Query(1),
-    period: str = Query("overall"),
-    authorization: str = Header(None),
-):
-    return fetch_lastfm_top_tags(limit=limit, period=period, page=page)
+    return fetch_spotify_top_artists(limit=limit, time_range=time_range, page=page)
 
 
 @app.get("/ping", response_model=PongResponse)

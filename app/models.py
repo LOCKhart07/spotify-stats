@@ -1,21 +1,18 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class Track(BaseModel):
     name: str
     artist: str
     url: str
+    image: Optional[str] = None
 
 
 class Artist(BaseModel):
     name: str
     url: str
     image: str  # Optional image URL
-
-
-class Tag(BaseModel):
-    name: str
 
 
 class PongResponse(BaseModel):

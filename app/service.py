@@ -1,60 +1,71 @@
 import requests
 import os
+from typing import List
+from .models import Track, Artist
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-LASTFM_API_KEY = os.getenv("LASTFM_API_KEY")
-LASTFM_USERNAME = os.getenv("LASTFM_USERNAME")
-
-BASE_URL = "http://ws.audioscrobbler.com/2.0/"
-HEADERS = {
-    "User-Agent": "SpotifyStatsCache/1.0 (https://lockhart.in/spotify-stats.api)"
-}
+SPOTIFY_REFRESH_TOKEN = os.getenv("SPOTIFY_REFRESH_TOKEN")
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
 
-def fetch_lastfm_data(method: str, limit: int, period: str = "overall", page: int = 1):
-    params = {
-        "method": method,
-        "user": LASTFM_USERNAME,
-        "api_key": LASTFM_API_KEY,
-        "format": "json",
-        "limit": limit,
-        "period": period,
-        "page": page,
+def get_spotify_access_token():
+    url = "https://accounts.spotify.com/api/token"
+    data = {
+        "grant_type": "refresh_token",
+        "refresh_token": SPOTIFY_REFRESH_TOKEN,
+        "client_id": SPOTIFY_CLIENT_ID,
+        "client_secret": SPOTIFY_CLIENT_SECRET,
     }
-    response = requests.get(BASE_URL, params=params, headers=HEADERS)
+    response = requests.post(url, data=data)
+    return response.json().get("access_token")
+
+
+def fetch_spotify_data(endpoint: str, time_range: str, limit: int, page: int):
+    access_token = get_spotify_access_token()
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+    params = {
+        "time_range": time_range,
+        "limit": limit,
+        "offset": (page - 1) * limit,
+    }
+    url = f"https://api.spotify.com/v1/me/top/{endpoint}"
+    response = requests.get(url, headers=headers, params=params)
     return response.json()
 
 
-def fetch_lastfm_top_tracks(limit: int, period: str = "overall", page: int = 1):
-    data = fetch_lastfm_data("user.gettoptracks", limit, period, page)
+def fetch_spotify_top_tracks(
+    limit: int, time_range: str = "short_term", page: int = 1
+) -> List[Track]:
+    data = fetch_spotify_data("tracks", time_range, 1, page)
+    print(data)
     tracks = [
         {
             "name": t["name"],
-            "artist": t["artist"]["name"],
-            "url": t["url"],
+            "artist": t["artists"][0]["name"],
+            "url": t["external_urls"]["spotify"],
+            "image": t["album"]["images"][1]["url"] if t["album"]["images"] else None,
         }
-        for t in data.get("toptracks", {}).get("track", [])
+        for t in data.get("items", [])
     ]
     return tracks
 
 
-def fetch_lastfm_top_artists(limit: int, period: str = "overall", page: int = 1):
-    data = fetch_lastfm_data("user.gettopartists", limit, period, page)
-    artists = [
-        {
-            "name": artist["name"],
-            "url": artist["url"],
-            "image": artist.get("image", [{}])[0].get("#text", ""),
-        }
-        for artist in data.get("topartists", {}).get("artist", [])
-    ]
-    return artists
-
-
-def fetch_lastfm_top_tags(limit: int, period: str = "overall", page: int = 1):
-    data = fetch_lastfm_data("user.gettoptags", limit, period, page)
-    tags = [tag["name"] for tag in data.get("toptags", {}).get("tag", [])]
-    return tags
+def fetch_spotify_top_artists(
+    limit: int, time_range: str = "short_term", page: int = 1
+) -> List[Artist]:
+    data = fetch_spotify_data("artists", time_range, limit, page)
+    genres = list(
+        set(
+            genre
+            for artist in data.get("items", [])
+            for genre in artist.get("genres", [])
+        )
+    )
+    return genres
