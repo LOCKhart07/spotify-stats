@@ -1,6 +1,7 @@
 import redis
 import os
 from fastapi import FastAPI, Query, APIRouter, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware  # Import CORS middleware
 from typing import List, Callable
 from functools import wraps
 
@@ -30,6 +31,15 @@ BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*.lockhart.in"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 router = APIRouter(prefix="/spotify-stats/api")
 
