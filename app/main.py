@@ -48,10 +48,10 @@ def redis_cache(func: Callable):
         # Get parameters for cache key
         limit = kwargs.get("limit", 10)
         page = kwargs.get("page", 1)
-        period = kwargs.get("period", "overall")
+        time_range = kwargs.get("period", "short_term")
 
         # Create a unique cache key based on function name and parameters
-        cache_key = f"{func.__name__}_{limit}_{page}_{period}"
+        cache_key = f"{func.__name__}_{limit}_{page}_{time_range}"
 
         cached_data = redis_client.get(cache_key)
         if cached_data:
