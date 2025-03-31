@@ -33,7 +33,7 @@ app = FastAPI()
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://portfolio.lockhart.in", "http://localhost:3000"],
+    allow_origins=["https://portfolio.lockhart.in"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -76,8 +76,8 @@ def verify_authorization(func):
 
 
 @router.get("/top-tracks", response_model=List[Track])
-# @verify_authorization
-# @redis_cache
+@verify_authorization
+@redis_cache
 def top_tracks(
     limit: int = Query(10),
     page: int = Query(1),
@@ -88,8 +88,8 @@ def top_tracks(
 
 
 @router.get("/top-artists", response_model=List[Artist])
-# @verify_authorization
-# @redis_cache
+@verify_authorization
+@redis_cache
 def top_genres(
     limit: int = Query(10),
     page: int = Query(1),
