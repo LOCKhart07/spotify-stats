@@ -12,7 +12,8 @@ class Track(BaseModel):
 class Artist(BaseModel):
     name: str
     url: str
-    image: str  # Optional image URL
+    image: Optional[str] = None
+    genres: List[str] = []
 
 
 class PongResponse(BaseModel):

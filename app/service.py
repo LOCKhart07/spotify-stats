@@ -86,11 +86,13 @@ def fetch_spotify_top_artists(
     limit: int, time_range: str = "short_term", page: int = 1
 ) -> List[Artist]:
     data = fetch_spotify_data("artists", time_range, limit, page)
-    genres = list(
-        set(
-            genre
-            for artist in data.get("items", [])
-            for genre in artist.get("genres", [])
-        )
-    )
-    return genres
+    artists = [
+        {
+            "name": artist["name"],
+            "url": artist["external_urls"]["spotify"],
+            "image": artist["images"][1]["url"] if artist["images"] else None,
+            "genres": artist.get("genres", []),
+        }
+        for artist in data.get("items", [])
+    ]
+    return artists
