@@ -43,7 +43,7 @@ def fetch_spotify_data(endpoint: str, time_range: str, limit: int, page: int):
 def fetch_spotify_top_tracks(
     limit: int, time_range: str = "short_term", page: int = 1
 ) -> List[Track]:
-    data = fetch_spotify_data("tracks", time_range, 1, page)
+    data = fetch_spotify_data("tracks", time_range, limit, page)
     print(data)
     tracks = [
         {
