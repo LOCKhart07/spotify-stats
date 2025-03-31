@@ -1,22 +1,15 @@
-import redis
 import os
 import logging
-from fastapi import FastAPI, Query, APIRouter, HTTPException, Header
-from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Callable
 from functools import wraps
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from typing import List, Callable
 
 from dotenv import load_dotenv
-from .service import (
-    fetch_spotify_top_artists,
-    fetch_spotify_top_tracks,
-)
-from .models import (
-    Track,
-    Artist,
-    PongResponse,
-)
+from fastapi import FastAPI, Query, APIRouter, HTTPException, Header
+from fastapi.middleware.cors import CORSMiddleware
+import redis
+
+from .service import fetch_spotify_top_artists, fetch_spotify_top_tracks
+from .models import Track, Artist, PongResponse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -48,15 +41,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add trusted host middleware
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=[
-        "https://portfolio.lockhart.in",
-        "https://portfolio-jenslee.netlify.app/",
-        "http://localhost:3000",
-    ],
-)
 
 router = APIRouter(prefix="/spotify-stats/api")
 
