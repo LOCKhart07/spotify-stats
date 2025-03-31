@@ -13,7 +13,7 @@ USER spotify-stats-cache
 
 # Copy and install dependencies
 COPY --chown=spotify-stats-cache:spotify-stats-cache ./requirements.txt /code/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt --user  # Install in user directory
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt --user --no-warn-script-location # Install in user directory
 
 # Copy application code
 COPY --chown=spotify-stats-cache:spotify-stats-cache ./app /code/app
