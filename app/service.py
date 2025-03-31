@@ -21,6 +21,7 @@ def get_spotify_access_token():
         "client_secret": SPOTIFY_CLIENT_SECRET,
     }
     response = requests.post(url, data=data)
+    print(response.json())
     return response.json().get("access_token")
 
 
@@ -39,6 +40,7 @@ def fetch_spotify_data(endpoint: str, time_range: str, limit: int, page: int):
     response = requests.get(url, headers=headers, params=params)
     if response.status_code != 200:
         raise Exception(f"Failed to fetch data from Spotify: {response.json()}")
+    print(response.json())
     return response.json()
 
 
