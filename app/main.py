@@ -47,7 +47,7 @@ app.add_middleware(
 # Add trusted host middleware
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["portfolio.lockhart.in", "http://localhost:3000"],
+    allowed_hosts=["https://portfolio.lockhart.in", "http://localhost:3000"],
 )
 
 router = APIRouter(prefix="/spotify-stats/api")
