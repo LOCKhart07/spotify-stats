@@ -4,6 +4,7 @@ from typing import List
 from .models import Track, Artist
 
 from dotenv import load_dotenv
+import redis
 
 load_dotenv()
 
@@ -12,7 +13,22 @@ SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
 
+# Config
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+CACHE_TTL = int(os.getenv("CACHE_TTL", 86400))  # 1 day in seconds
+
+BEARER_TOKEN = os.getenv("BEARER_TOKEN")
+
+redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
+
+
 def get_spotify_access_token():
+    # Check if the access token is cached
+    cached_token = redis_client.get("spotify_access_token")
+    if cached_token:
+        return cached_token
+
     url = "https://accounts.spotify.com/api/token"
     data = {
         "grant_type": "refresh_token",
@@ -21,8 +37,15 @@ def get_spotify_access_token():
         "client_secret": SPOTIFY_CLIENT_SECRET,
     }
     response = requests.post(url, data=data)
-    print(response.json())
-    return response.json().get("access_token")
+    if response.status_code != 200:
+        raise Exception(f"Failed to get Spotify access token: {response.json()}")
+
+    access_token = response.json().get("access_token")
+
+    # Cache the access token with a TTL (e.g., 3600 seconds)
+    redis_client.setex("spotify_access_token", 3500, access_token)
+
+    return access_token
 
 
 def fetch_spotify_data(endpoint: str, time_range: str, limit: int, page: int):
@@ -40,7 +63,6 @@ def fetch_spotify_data(endpoint: str, time_range: str, limit: int, page: int):
     response = requests.get(url, headers=headers, params=params)
     if response.status_code != 200:
         raise Exception(f"Failed to fetch data from Spotify: {response.json()}")
-    print(response.json())
     return response.json()
 
 
