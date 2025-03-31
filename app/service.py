@@ -37,6 +37,8 @@ def fetch_spotify_data(endpoint: str, time_range: str, limit: int, page: int):
     }
     url = f"https://api.spotify.com/v1/me/top/{endpoint}"
     response = requests.get(url, headers=headers, params=params)
+    if response.status_code != 200:
+        raise Exception(f"Failed to fetch data from Spotify: {response.json()}")
     return response.json()
 
 
