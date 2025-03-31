@@ -58,7 +58,11 @@ def redis_cache(func: Callable):
             return eval(cached_data)
 
         result = func(*args, **kwargs)
-        redis_client.setex(cache_key, CACHE_TTL, str(result))
+        
+        # Only cache if result is not None or an empty list
+        if result is not None and result != []:
+            redis_client.setex(cache_key, CACHE_TTL, str(result))
+        
         return result
 
     return wrapper
