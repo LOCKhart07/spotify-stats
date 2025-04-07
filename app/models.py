@@ -9,6 +9,10 @@ class Track(BaseModel):
     image: Optional[str] = None
 
 
+class Genre(BaseModel):
+    name: str
+
+
 class Artist(BaseModel):
     name: str
     url: str

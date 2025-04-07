@@ -8,8 +8,12 @@ from fastapi import FastAPI, Query, APIRouter, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 import redis
 
-from .service import fetch_spotify_top_artists, fetch_spotify_top_tracks
-from .models import Track, Artist, PongResponse
+from .service import (
+    fetch_spotify_top_artists,
+    fetch_spotify_top_tracks,
+    fetch_spotify_top_genres,
+)
+from .models import Track, Artist, PongResponse, Genre
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -128,6 +132,20 @@ def top_artists(
     except Exception as e:
         logger.error(f"Error fetching top artists: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to fetch top artists")
+
+
+@router.get("/top-genres", response_model=List[Genre])
+@verify_authorization
+@redis_cache
+def top_genres(
+    time_range: str = Query("short_term", regex="^(short_term|medium_term|long_term)$"),
+    authorization: str = Header(None),
+):
+    try:
+        return fetch_spotify_top_genres(time_range=time_range)
+    except Exception as e:
+        logger.error(f"Error fetching top tracks: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to fetch top tracks")
 
 
 @app.get("/ping", response_model=PongResponse)

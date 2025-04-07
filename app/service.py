@@ -1,7 +1,7 @@
 import requests
 import os
 from typing import List
-from .models import Track, Artist
+from .models import Track, Artist, Genre
 
 from dotenv import load_dotenv
 import redis
@@ -96,3 +96,25 @@ def fetch_spotify_top_artists(
         for artist in data.get("items", [])
     ]
     return artists
+
+
+def fetch_spotify_top_genres(
+    time_range: str = "short_term",
+) -> List[Genre]:
+    data = fetch_spotify_data("artists", time_range, 50, 1)
+    genres = []
+    genre_count = {}
+    for artist in data.get("items", []):
+        for genre in artist.get("genres", []):
+            if genre in genre_count:
+                genre_count[genre] += 1
+            else:
+                genre_count[genre] = 1
+
+    # Sort genres by count, maintaining the current order in case of a tie
+    sorted_genres = sorted(
+        genre_count.items(), key=lambda x: (-x[1], list(genre_count.keys()).index(x[0]))
+    )
+
+    genres = [{"name": genre} for genre, _ in sorted_genres]
+    return genres
