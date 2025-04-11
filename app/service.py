@@ -16,7 +16,7 @@ SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 # Config
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
-CACHE_TTL = int(os.getenv("CACHE_TTL", 86400))  # 1 day in seconds
+CACHE_TTL = int(os.getenv("CACHE_TTL", 3600))  # 1 hour in seconds
 
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 
