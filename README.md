@@ -1,7 +1,7 @@
 # Spotify Stats
 Welcome to the Spotify Stats API! 🎶
 
-This API serves as a glorified caching service that allows you to efficiently fetch and store your top tracks and artists from Spotify, with built-in caching for improved performance.
+This API serves as a glorified caching service that allows you to efficiently fetch and store your top tracks and artists from Spotify.
 
 ## Features
 - **Caching Support**: Utilizes Redis to cache responses for improved performance and reduced API calls.
