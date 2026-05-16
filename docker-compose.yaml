@@ -3,10 +3,11 @@ services:
     container_name: spotify-stats
     image: ghcr.io/lockhart07/spotify-stats:latest
     pull_policy: always
+    # Host networking: the app talks to system redis bound to 127.0.0.1
+    # on the host, and host nginx reverse-proxies to localhost:9000.
+    network_mode: host
     tty: true
     stdin_open: true
-    ports:
-      - "9000:9000"
     healthcheck:
       test: ["CMD", "python3", "-c", "import requests; r=requests.get('http://localhost:9000/ping'); r.raise_for_status()"]
       interval: 30s
@@ -14,16 +15,10 @@ services:
       retries: 5
       start_period: 30s
     environment:
-      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}  
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
       - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
       - SPOTIFY_REFRESH_TOKEN=${SPOTIFY_REFRESH_TOKEN}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - CACHE_TTL=${CACHE_TTL}
       - BEARER_TOKEN=${BEARER_TOKEN}
-    networks:
-      - backend
-      
-networks:
-  backend:
-    external: true
