@@ -1,0 +1,18 @@
+[project]
+name = "spotify-stats"
+version = "0.1.0"
+description = "Authenticated, Redis-cached proxy in front of the Spotify Web API's top tracks/artists/genres endpoints."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Jenslee Dsouza", email = "dsouzajenslee@gmail.com" }]
+dependencies = [
+    "requests==2.31.0",
+    "python-dotenv==1.0.0",
+    "fastapi==0.115.12",
+    "uvicorn==0.34.0",
+    "redis==5.2.1",
+]
+
+[tool.uv]
+package = false

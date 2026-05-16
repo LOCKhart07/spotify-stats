@@ -29,13 +29,14 @@ To get started, clone the repository and set up your environment variables as sp
 - **GET /ping**: Check the health of the API
 
 ## Requirements
-- Python 3.11
+- Python 3.11+
+- [uv](https://docs.astral.sh/uv/)
 - Redis
 
 ## Installation
 1. Clone the repository.
-2. Install the required packages using `pip install -r requirements.txt`.
-3. Run the application using `uvicorn app.main:app --host 0.0.0.0 --port 9000`.
+2. Install dependencies from the lock file with `uv sync`.
+3. Run the application using `uv run uvicorn app.main:app --host 0.0.0.0 --port 9000`.
 
 ## Environment Variables
 Create a `.env` file with the following variables:

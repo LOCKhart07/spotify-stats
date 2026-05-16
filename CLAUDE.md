@@ -13,11 +13,16 @@ files under `app/`.
 
 ## Commands
 
+Dependencies are managed with [uv](https://docs.astral.sh/uv/): `pyproject.toml`
+declares them (pinned with `==`) and `uv.lock` pins the full resolved tree. There
+is no `requirements.txt`. Add/remove deps with `uv add` / `uv remove` (which
+update both files); regenerate the lock with `uv lock`.
+
 Run locally (needs a reachable Redis and a populated `.env`, see below):
 
 ```bash
-pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 9000          # or: python -m app.main
+uv sync                                                          # install from uv.lock into .venv
+uv run uvicorn app.main:app --host 0.0.0.0 --port 9000           # or: uv run python -m app.main
 ```
 
 Run via Docker (the supported path; image is `ghcr.io/lockhart07/spotify-stats`):
@@ -84,6 +89,8 @@ construction in `redis_cache` to match.
 
 Pushing to `main` (or `workflow_dispatch`) triggers
 `.github/workflows/backend-build-push-deploy.yaml`: it builds a `linux/arm64/v8`
-image, pushes it to GHCR tagged `latest` and `sha-…`, then SSHes into an Oracle
+image (the `Dockerfile` copies the `uv` binary from `ghcr.io/astral-sh/uv` and
+installs deps with `uv sync --frozen --no-dev` into `/code/.venv`), pushes it to
+GHCR tagged `latest` and `sha-…`, then SSHes into an Oracle
 host, pulls the latest `docker-compose.yaml` from `main`, and runs
 `docker compose up -d` with secrets injected as environment variables.
