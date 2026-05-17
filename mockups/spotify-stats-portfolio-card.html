@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>portfolio card · Spotify Stats</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* Spotify brand */
+    --green:   #1DB954;   /* classic Spotify green               */
+    --green-2: #1ED760;   /* brighter accent green               */
+    --ink:     #FFFFFF;   /* panel text                          */
+    /* product preview frame (Spotify-dark code window) */
+    --surface: #121212;  --surface-2: #181818;  --code-ink: #ECECEC;
+    --muted: rgba(236,236,236,.62);  --faint: rgba(236,236,236,.36);
+    --divider: rgba(236,236,236,.09);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #0b0b0c; }
+  body { display: grid; place-items: center; min-height: 100vh; padding: 40px;
+    font-family: 'Inter', system-ui, sans-serif; }
+  .hint { position: fixed; top: 14px; left: 16px; font-size: 12px;
+    color: rgba(255,255,255,.34); font-family: 'JetBrains Mono', monospace; }
+  body.bare { padding: 0; display: block; min-height: 0; }
+  body.bare .hint { display: none; }
+  body.bare #card { border-radius: 0; }
+
+  /* ===== THE ASSET · 1600×582 ≈ 2.75:1, matches portfolio .project-image (550×200) ===== */
+  #card {
+    width: 1600px; height: 582px; overflow: hidden; position: relative;
+    border-radius: 20px;
+    background:
+      radial-gradient(820px 540px at 20% 18%, rgba(29,185,84,.26) 0%, transparent 62%),
+      radial-gradient(620px 480px at 86% 96%, rgba(30,215,96,.10) 0%, transparent 60%),
+      linear-gradient(135deg, #1c1c1c 0%, #141414 48%, #0c0c0c 100%);
+    display: flex; align-items: stretch;
+  }
+  #card::after { content: ""; position: absolute; inset: 0; opacity: .05;
+    mix-blend-mode: overlay;
+    background-image: radial-gradient(circle at 1px 1px, #fff 1px, transparent 0);
+    background-size: 5px 5px; }
+
+  /* ---- LEFT: brand panel ---- */
+  .brand { flex: 1; padding: 62px 56px 62px 74px; position: relative; z-index: 2;
+    display: flex; flex-direction: column; justify-content: center; gap: 22px; }
+  .kicker { font-size: 13px; letter-spacing: .34em; font-weight: 700;
+    color: rgba(255,255,255,.46); text-transform: uppercase; }
+  .lockup { display: flex; align-items: center; gap: 24px; }
+  .icon { width: 96px; height: 96px; border-radius: 24px; flex-shrink: 0;
+    background: var(--green); overflow: hidden; display: grid; place-items: center;
+    box-shadow: 0 18px 38px rgba(29,185,84,.34), 0 0 0 1px rgba(255,255,255,.10) inset; }
+  .icon svg { width: 52px; height: 52px; display: block; }
+  .wordmark { font-size: 58px; font-weight: 800; color: var(--ink);
+    letter-spacing: -2px; line-height: 1; }
+  .wordmark .g { color: var(--green-2); }
+  .rule { width: 58px; height: 4px; border-radius: 2px; background: var(--green-2); }
+  .tag { font-size: 27px; font-weight: 700; color: var(--ink);
+    line-height: 1.3; max-width: 540px; letter-spacing: -.5px; }
+  .tag .soft { color: rgba(255,255,255,.58); font-weight: 500; }
+  .sub { font-size: 15.5px; font-weight: 500; color: rgba(255,255,255,.54);
+    max-width: 500px; line-height: 1.5; }
+
+  /* ---- RIGHT: API code window ---- */
+  .stage { width: 660px; position: relative; z-index: 2; }
+  .glow { position: absolute; width: 460px; height: 460px; border-radius: 50%;
+    top: 50%; left: 48%; transform: translate(-50%,-50%);
+    background: radial-gradient(circle, rgba(29,185,84,.18) 0%, transparent 68%); }
+  .win { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    width: 548px; background: var(--surface); border-radius: 16px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,.07);
+    box-shadow: 0 44px 90px rgba(0,0,0,.58), 0 0 0 1px rgba(0,0,0,.5); }
+  .titlebar { display: flex; align-items: center; gap: 8px;
+    padding: 13px 18px; background: var(--surface-2);
+    border-bottom: 1px solid var(--divider); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .dot.r { background: #FF5F57; }
+  .dot.y { background: #FEBC2E; }
+  .dot.g { background: #28C840; }
+  .tbtitle { margin-left: 10px; font-size: 12px; color: var(--faint);
+    font-family: 'JetBrains Mono', monospace; }
+  .body { padding: 22px 26px 24px; }
+  .req { font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    color: var(--muted); line-height: 1.65; }
+  .req .verb { color: var(--green-2); font-weight: 700; }
+  .req .q { color: var(--faint); }
+
+  .heroblock { margin: 20px 0 18px; display: flex; align-items: flex-end; gap: 18px; }
+  .heromain { display: flex; flex-direction: column; }
+  .hl { font-size: 11px; color: var(--faint); text-transform: uppercase;
+    letter-spacing: .18em; font-weight: 700; margin-bottom: 6px; }
+  .hero { font-family: 'JetBrains Mono', monospace; font-weight: 700;
+    font-size: 68px; letter-spacing: -3px; line-height: .95; color: var(--ink); }
+  .hero .u { font-size: 30px; color: var(--muted); margin-left: 4px; letter-spacing: 0; }
+  .badge { display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 13px; border-radius: 999px; margin-bottom: 8px;
+    background: rgba(29,185,84,.14); border: 1px solid rgba(29,185,84,.42); }
+  .badge .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--green-2);
+    box-shadow: 0 0 0 4px rgba(30,215,96,.20); }
+  .badge span { font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+    font-weight: 700; color: var(--green-2); letter-spacing: .02em; }
+  .hsub { font-size: 12.5px; color: var(--muted); margin-bottom: 4px; }
+  .hsub b { color: var(--code-ink); font-weight: 600; }
+
+  .sep { border: 0; border-top: 1px solid var(--divider); margin: 16px 0 12px; }
+  .jlabel { font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+    color: var(--faint); margin-bottom: 8px; }
+  .row { display: flex; align-items: center; gap: 13px; padding: 6px 0; }
+  .row .art { width: 34px; height: 34px; border-radius: 7px; flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(0,0,0,.4); }
+  .row .m { flex: 1; min-width: 0; }
+  .row .nm { font-size: 13.5px; font-weight: 600; color: var(--code-ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .mt { font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+  .row .v { font-size: 12px; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+    color: var(--muted); }
+  .ft { display: flex; align-items: center; gap: 8px; margin-top: 16px;
+    padding-top: 13px; border-top: 1px solid var(--divider);
+    font-size: 11px; color: var(--faint); font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+  <div class="hint">portfolio card · 1600×582. Open with #bare for the exact-crop export.</div>
+  <script>if (location.hash === '#bare') document.body.classList.add('bare');</script>
+
+  <div id="card">
+    <!-- LEFT: brand panel -->
+    <div class="brand">
+      <div class="kicker">FastAPI&nbsp; ·&nbsp; Redis&nbsp; ·&nbsp; Spotify Web API</div>
+      <div class="lockup">
+        <span class="icon">
+          <!-- equalizer / stats bars = "music stats" (no Spotify trademark) -->
+          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4"  y="30" width="9" height="18" rx="2.5" fill="#0c0c0c"/>
+            <rect x="16" y="20" width="9" height="28" rx="2.5" fill="#0c0c0c"/>
+            <rect x="28" y="8"  width="9" height="40" rx="2.5" fill="#0c0c0c"/>
+            <rect x="40" y="24" width="9" height="24" rx="2.5" fill="#0c0c0c"/>
+          </svg>
+        </span>
+        <span class="wordmark">Spotify&nbsp;<span class="g">Stats</span></span>
+      </div>
+      <div class="rule"></div>
+      <div class="tag">Your listening, on tap.<br />
+        <span class="soft">Top tracks, artists &amp; genres, pre-cached.</span></div>
+      <div class="sub">An authenticated, Redis-cached proxy in front of the Spotify
+        Web API, so a portfolio can show stats without leaking credentials or
+        hitting rate limits.</div>
+    </div>
+
+    <!-- RIGHT: API code window -->
+    <div class="stage">
+      <div class="glow"></div>
+      <div class="win">
+        <div class="titlebar">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="tbtitle">top-tracks.http</span>
+        </div>
+        <div class="body">
+          <div class="req">
+            <span class="verb">GET</span> /spotify-stats/api/top-tracks<br />
+            <span class="q">&nbsp;&nbsp;&nbsp;&nbsp;?limit=10&amp;time_range=short_term</span><br />
+            Authorization: Bearer&nbsp;••••••••••
+          </div>
+
+          <div class="heroblock">
+            <div class="heromain">
+              <div class="hl">Cached response</div>
+              <div class="hero">4<span class="u">ms</span></div>
+            </div>
+            <div>
+              <div class="badge"><span class="pulse"></span><span>200&nbsp; ·&nbsp; X-Cache: HIT</span></div>
+              <div class="hsub">cold from Spotify ≈ <b>380 ms</b> · TTL <b>24 h</b></div>
+            </div>
+          </div>
+
+          <hr class="sep" />
+          <div class="jlabel">[ &nbsp;"tracks":&nbsp;10&nbsp;]</div>
+          <div class="row">
+            <div class="art" style="background:linear-gradient(135deg,#7b4bd1,#3a1f78)"></div>
+            <div class="m"><div class="nm">Too Sweet</div><div class="mt">Hozier · Unreal Unearth</div></div>
+            <div class="v">#1</div>
+          </div>
+          <div class="row">
+            <div class="art" style="background:linear-gradient(135deg,#2e7dd1,#143a78)"></div>
+            <div class="m"><div class="nm">End of Beginning</div><div class="mt">Djo · DECIDE</div></div>
+            <div class="v">#2</div>
+          </div>
+          <div class="row">
+            <div class="art" style="background:linear-gradient(135deg,#e08b2e,#9c4a14)"></div>
+            <div class="m"><div class="nm">I Love You So</div><div class="mt">The Walters · I Love You So</div></div>
+            <div class="v">#3</div>
+          </div>
+
+          <div class="ft">Bearer-auth → Redis cache → Spotify · single GHCR container</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
