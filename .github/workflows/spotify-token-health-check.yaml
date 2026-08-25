@@ -1,0 +1,48 @@
+name: Spotify Token Health Check
+
+on:
+  schedule:
+    - cron: "0 8 * * 1" # every Monday 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit top-tracks endpoint on Oracle host
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USERNAME }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          envs: BEARER_TOKEN
+          script: |
+            code=$(curl -s -o /dev/null -w '%{http_code}' \
+              -H "Authorization: Bearer $BEARER_TOKEN" \
+              "http://localhost:9000/spotify-stats/api/top-tracks?limit=1&page=1&time_range=short_term")
+            echo "HTTP status: $code"
+            [ "$code" = "200" ]
+        env:
+          BEARER_TOKEN: ${{ secrets.BEARER_TOKEN }}
+
+      - name: Open or update issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(gh issue list --repo "${{ github.repository }}" --state open \
+            --search "Spotify refresh token needs renewal in:title" \
+            --json number -q '.[0].number')
+          run_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          if [ -z "$existing" ]; then
+            gh issue create --repo "${{ github.repository }}" \
+              --title "Spotify refresh token needs renewal" \
+              --body "The weekly health check found the Spotify-backed API failing — most likely an expired/revoked refresh token (Spotify Development-mode apps cap refresh token lifetime at a fixed period, currently 180 days).
+
+Fix: run \`uv run python scripts/get_refresh_token.py\`, log in when the browser opens, then say yes when it asks to push the secret and redeploy.
+
+Failing run: $run_url"
+          else
+            gh issue comment "$existing" --repo "${{ github.repository }}" \
+              --body "Still failing as of $(date -u +%Y-%m-%dT%H:%M:%SZ). Run: $run_url"
+          fi
